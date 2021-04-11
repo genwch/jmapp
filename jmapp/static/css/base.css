@@ -45,3 +45,16 @@ textarea:read-only {
   background: transparent !important;
   border: none !important;
 }
+
+#section-main {
+  height: 77%;
+}
+#section-jh {
+  height: 77%;
+  background-color: cadetblue;
+}
+
+#section-js {
+  height: 77%;
+  background-color: cornflowerblue;
+}
