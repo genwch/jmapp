@@ -47,9 +47,11 @@ def get_data(*args, **kwargs) -> list:
     rtn = rtn.json()
     return rtn.get("items", [])
 
+
 def post_data(*args, **kwargs) -> list:
     rtn, data = post_data_with_rtn(*args, **kwargs)
     return rtn
+
 
 def post_data_with_rtn(*args, **kwargs) -> list:
     for a in args:
@@ -66,7 +68,6 @@ def post_data_with_rtn(*args, **kwargs) -> list:
     url = "{}/{}".format(conf.get("host"), type)
     if code != None:
         url = f"{url}/{code}"
-    print(url, data)
     rtn = requests.post(url,
                         headers=headers, json=data)
     if rtn.status_code != 200:
