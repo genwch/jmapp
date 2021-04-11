@@ -1,0 +1,47 @@
+body {
+  background-color: blanchedalmond;
+}
+
+table.display {
+  width: 100% !important;
+}
+
+span.table-opt,
+span.form-opt {
+  background-color: white;
+  border-color: black;
+  border-radius: 5px;
+  border-width: 5px 5px;
+  border-style: double;
+}
+
+span.table-opt-disable,
+span.form-opt-disable {
+  background-color: gray;
+  border-color: black;
+  border-radius: 5px;
+  border-width: 5px 5px;
+  border-style: double;
+}
+
+li.form-check-list {
+  float: left;
+}
+
+li.form-check-list div {
+  display: block;
+  text-align: left;
+  padding: 16px;
+  text-decoration: none;
+}
+
+ul.form-check {
+  list-style-type: none;
+  overflow: hidden;
+}
+
+input[type="text"]:read-only,
+textarea:read-only {
+  background: transparent !important;
+  border: none !important;
+}

@@ -1,0 +1,29 @@
+<!-- Just an image -->
+<nav class="navbar navbar-light bg-light">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <img src="{{url_for('static', filename='img/logo.png')}}" height="30" alt="" loading="placeholders" />
+    </a>
+  </div>
+  <div>
+  </div>
+    <a class="navbar-brand" href="/job">
+      Job
+    </a>
+  <div>
+  {% if session['access_token'] %}
+    <a class="navbar-brand" href="/profile?usr_cde={{session['usr_cde']}}">
+      Profile
+    </a>
+  </div>
+  <div>
+    <a class="navbar-brand" href="/logout">
+      Logout, {{session['usr_cde']}}
+    </a>
+  {% else %}
+    <a class="navbar-brand" href="/login">
+      Login
+    </a>
+  {% endif %}
+  </div>
+</nav>

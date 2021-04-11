@@ -1,0 +1,49 @@
+{% extends "base/bootstrap-base.html.j2" %} 
+{% block links %}
+{{super()}}
+<link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.png') }}">
+{% endblock %}
+{% block styles %}
+{{super()}}
+<link rel="stylesheet" href="{{url_for('static', filename='css/footer.css')}}">
+<link rel="stylesheet" href="{{url_for('static', filename='css/base.css')}}">
+{% endblock %}
+{% block scripts %}
+<script src="{{url_for('static', filename='js/base.js')}}"></script>
+{{super()}}
+{% endblock %}
+{% block navbar %}
+{% include "base/nav.html.j2" %}
+{% endblock %}
+
+{% block content %}
+{% if msg %}
+    <div class="alert alert-danger" role="alert">{{msg}}</div>
+{% endif %}
+{% for o in obj %}
+    {% if o.type=="tbl" %}
+        {% set tbl = o.obj %}
+        {% include "base/table.html.j2" %}
+    {% else %}
+        {% set form = o.obj %}
+        {% include "base/form.html.j2" %} 
+    {% endif %}
+{% endfor %}
+{% if newbtn %}
+<button type="submit" class="btn btn-primary" onclick="window.location = './view?edit=1';">New</button>
+{% endif %}
+{% endblock %}
+
+{% block footer %}
+<footer>
+  <div class="copyright">
+    <p>&copy 2021 - JobMatch</p>
+  </div>
+  <div class="social">
+    <a href="https://m.me/104617554863799" class="support">ChatBot</a>
+    <a href="https://www.facebook.com" class="face">f</a>
+    <a href="https://twitter.com/?lang=en" class="tweet">t</a>
+    <a href="https://www.linkedin.com" class="linked">in</a>
+  </div>
+</footer>
+{% endblock %}

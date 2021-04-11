@@ -1,0 +1,52 @@
+{% extends "base/main.html.j2" %} 
+{% block title %} 
+JobMatch - Job
+{% endblock %} 
+
+{% block links %}
+{{super()}}
+<link href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css" rel="stylesheet">    
+{% endblock %}
+{% block scripts %}
+{{super()}}
+<script type="text/javascript" src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+<script>
+window.post = function(url, data) {
+  return fetch(url, {method: "POST", headers: {"accept": "application/json"}, body: JSON.stringify(data)});
+};
+
+function get_job_cat(obj, catobj) {
+    var val=obj.value;
+    var data={"job_desc": val};
+    console.log(data);
+    /*
+    const rawResponse=await fetch('/job/jobcat', {
+        method: 'POST',
+        headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    });
+    const content = await rawResponse.json();
+
+    console.log(content);    
+    */
+
+
+    post("/job/jobcat", data).then(function(res){ return res.json(); })
+    .then(function(data){ 
+        var rtn=JSON.parse(JSON.stringify( data ));
+        var jobcat=rtn.job_cat.toUpperCase();
+        var btn=catobj+"-"+jobcat+"-input";
+        document.getElementById(btn).click();
+        });
+            
+};
+
+</script>
+{% endblock %}
+
+{% block content %}
+{{super()}}
+{% endblock %}

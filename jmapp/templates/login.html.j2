@@ -1,0 +1,18 @@
+{% extends "base/main.html.j2" %} 
+{% block title %} 
+Login
+{% endblock %} 
+
+{% block links %}
+{{super()}}
+<link href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css" rel="stylesheet">    
+{% endblock %}
+{% block scripts %}
+{{super()}}
+<script type="text/javascript" src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+{% endblock %}
+
+{% block content %}
+{{super()}}
+<div><a href="/reg">Register new account</a></div>
+{% endblock %}

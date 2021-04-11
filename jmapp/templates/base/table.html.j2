@@ -1,0 +1,139 @@
+{% if tbl.title %}
+<h3>{{tbl.title}}</h3>
+{% endif %}
+<table id="{{tbl.id}}" class="display">
+    <thead>
+    <tr>
+        {% for c in tbl.cols %}
+            <th id="{{tbl.id}}-h-c-{{c.name}}" class="{{c.class_attr}}" name="{{c.name}}" {% if c.width %}width="{{c.width}}"{% endif %}>{{c.label if c.type not in ("hidden", "button")}}</th>
+        {% endfor %}
+    </tr>
+    </thead>
+    <tbody>
+        {% for row in tbl.data %}
+        {% set rcnt=loop.index %}
+        <tr id="{{tbl.id}}-r-{{rcnt}}">
+            {% for v in row %}
+                {% set ccnt=loop.index %}
+                {% set cname=tbl.cols[ccnt] %}
+                <td id="{{tbl.id}}-r-{{rcnt}}-c-{{ccnt}}" class="tbl-c-{{v.type}} {{v.class_attr}}" name="{% for c in tbl.cols %}{{ c.name if ccnt==loop.index }}{% endfor %}" {% for c in tbl.cols %}{% if ccnt==loop.index %}{% if c.width %}width="{{c.width}}"{% endif %}{% endif %}{% endfor %}>
+                {% if v.type=="link" and v.url %}
+                    <a for="{{tbl.id}}-r-{{rcnt}}-c-{{ccnt}}" href="{{v.url}}">{{v.val}}</a>
+                {% elif v.type=="button" and v.url %}
+                    {% if v.visable=="True" %} 
+                        <button for="{{tbl.id}}-r-{{rcnt}}-c-{{ccnt}}" coltype="{{v.type}}" {% if v.disable %}{% if v.disable == "True" %}disabled{% endif %}{% endif %} class="btn btn-primary" onclick="location.href='{{v.url}}';" >{{v.label}}</button>
+                    {% endif %}
+                {% elif v.type=="hidden" %}
+                    <input type="hidden" for="{{tbl.id}}-r-{{rcnt}}-c-{{ccnt}}" value="{{v.val}}" />
+                {% elif v.type=="star" %}
+                {% set scnt=v.val if v.val else 0 %}
+                {% set scnt=scnt | int %}
+                {% set maxstar=v.maxval if v.maxval else 5 %}
+                {% set maxstar=maxstar | int %}
+                <div for="{{tbl.id}}-r-{{rcnt}}-c-{{ccnt}}">
+                {% for s in range(maxstar) %}{% if s <scnt %}&#x2605{% else %}&#x2606{% endif %}{% endfor %}
+                </div>
+                {% elif v.type=="moption" %}
+                    {% set opts=v.val.split(";") %}
+                    {% for o in opts %}{% if o!="" %}<span class="table-opt">{{o}}</span>{% endif %}{% endfor %}
+                {% elif v.type=="checkbox" %}
+                    <input type="checkbox" 
+                        {% if v.val %}
+                            checked
+                        {% endif %}
+                    >
+                    {% if v.label %}
+                        <label>{{v.label}}</label>
+                    {% endif %}
+                {% else %}
+                    <div for="{{tbl.id}}-r-{{rcnt}}-c-{{ccnt}}">{{v.val}}</div>
+                {% endif %}
+                </td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+    <tfoot>
+        <tr>
+        {% for c in tbl.cols %}
+            <th coltype="{{c.type}}" name={{c.name}} {% if c.width %}width="{{c.width}}"{% endif %}>{{c.label if c.type not in ("hidden", "button") else ""}}</th>
+        {% endfor %}
+        </tr>
+    </tfoot>
+</table>
+<script>
+function htmlToElement(html) {
+    var template = document.createElement('template');
+    html = html.trim(); // Never return a text node of whitespace as the result
+    template.innerHTML = html;
+    return template.content;
+};
+
+$(document).ready(function() {
+    $('#{{tbl.id}} tfoot th').each( function () {
+        var title = $(this).text();
+        $(this).html( '<input type="text" placeholder="Search '+title+'" />' );
+    } );
+    {% set tblid=tbl.id | replace("-", "_") %}
+    $('#{{tbl.id}}').DataTable( {
+        "columnDefs": [
+        {% for c in tbl.cols %}{% set ccnt=loop.index %}
+            {   "name": "{{c.name}}",
+            {% if c.width %}"width": "{{c.width}}",{% endif %}
+            {% if c.type in ("hidden") %}"visible": false,{% endif %}
+            {% if c.type in ("hidden", "button") %}"searchable": false,{% endif %}
+            {% if c.type in ("hidden", "button") %}"orderable": false,{% endif %}
+                "targets": {{ccnt-1}}
+            },
+        {% endfor %}
+        ],
+        "processing": true,
+        initComplete: function () {
+            this.api().columns().every( function () {
+                var column = this;
+                coltype=$(column.footer()).attr('coltype');
+                if (["button"].indexOf(coltype)<0) {
+                    var select = $('<select><option value=""></option></select>')
+                        .appendTo( $(column.footer()).empty() )
+                        .on( 'change', function () {
+                            var val = $.fn.dataTable.util.escapeRegex(
+                                $(this).val()
+                            );
+                            column
+                                .search( val ? val : '', true, false )
+                                .draw();
+                        } );
+                } else {
+                    $(column.footer()).empty();
+                };
+
+                column.data().unique().sort().each( function ( d, j ) {
+                    coltype=$(d).attr('coltype');
+                    if (["button"].indexOf(coltype)<0) {
+                        if (d!="") {
+                            var obj=htmlToElement(d);
+                            var childs = obj.children; 
+                            var vlst=[];
+                            var subhtml=select.html();
+                            if (subhtml!="") {
+                                var optobj=htmlToElement(subhtml).children;
+                                for (var i = 0; i < optobj.length; i++) {
+                                    vlst.push(optobj[i].innerHTML)
+                                };
+                            }
+                            for (var i = 0; i < childs.length; i++) {
+                                var val=childs[i].innerHTML;
+                                if (vlst.indexOf(val)<0){
+                                    vlst.push(val)
+                                    select.append( '<option value="'+val+'">'+val+'</option>' )
+                                }
+                            };
+
+                        }
+                    }
+                } );
+            } );
+        }
+    } );
+} );
+</script>

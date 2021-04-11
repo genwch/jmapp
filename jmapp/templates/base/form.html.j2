@@ -1,0 +1,105 @@
+<form id="{{form.id}}" action="{{form.action}}" method="{{form.method}}">
+{% for c in form.cols %}
+    {% if c.type=="moption" %}
+        <div class="form-group">
+            <label for="{{form.id}}-{{c.name}}" class="form-check-label {{c.class_attr}}">{{c.label}}</label><br><ul class="form-check">
+            {% if c.val %}{% set opts=c.val.split(";") %}{% else %}{% set opts=[] %}{% endif %}
+            {% for o in c.opt %}
+                {% if o!="" %}
+                <li class="form-check-list"><div>
+                {% set formid=form.id | replace("-", "_") %}
+                <input type="checkbox" hidden class="form-check-input {{form.id}}-mopt" id="{{form.id}}-{{c.name}}-{{o}}-input" name="{{form.id}}-{{c.name}}" value="{{o}}"
+                {% if not(form.readonly) %} onclick="{{formid}}_mopt(this, '{{form.id}}-{{c.name}}', '{{form.id}}-{{c.name}}-{{o}}');" {% endif %}
+                {% if o in opts %}checked{% endif %}{% if c.readonly or form.readonly %}disabled{% endif %}>
+                <label for="{{form.id}}-{{c.name}}-{{o}}-input" class="form-check-label {{c.class_attr}}"><span id="{{form.id}}-{{c.name}}-{{o}}" class="
+                {% if o in opts %}form-opt{% else %}form-opt-disable{% endif %}">{{o}}</span></label></div></li>
+                {% endif %}
+            {% endfor %}
+            </ul><br>
+            <input type="hidden" class="form-control {{c.class_attr}}" id="{{form.id}}-{{c.name}}" name="{{c.name}}" placeholder="{{c.placeholder}}" value="{{c.val if c.val }}" >
+    {% elif c.type=="radio" %}
+        <div class="form-group form-radio">
+            <label for="{{form.id}}-{{c.name}}" class="form-input-label {{c.class_attr}}">{{c.label}}</label><br>
+            {% for o in c.opt %}
+                <input type="radio" id="{{form.id}}-{{c.name}}-{{o}}" name="{{form.id}}-{{c.name}}" value="{{o}}">
+                <label for="{{form.id}}-{{c.name}}-{{o}}" class="form-radio-label {{c.class_attr}}">{{o}}</label>
+            {% endfor %}
+    {% elif c.type=="button" %}<div>
+    {% elif c.type=="star" %}
+        <div>
+        <label for="{{form.id}}-{{c.name}}" class="form-input-label {{c.class_attr}}">{{c.label}}</label><br>
+        {% set scnt=c.val if c.val else 0 %}
+        {% set scnt=scnt | int %}
+        {% set maxstar=c.maxval if c.maxval else 5%}
+        {% set maxstar=maxstar | int %}
+        {% set formid=form.id | replace("-", "_") %}
+        {% for s in range(maxstar) %}<span for="{{form.id}}-{{c.name}}" id="{{form.id}}-{{c.name}}-{{s}}" class="form-star-{{s}} {{c.class_attr}}" 
+        {% if not(c.readonly or form.readonly) %}onclick="{{formid}}_star('{{form.id}}-{{c.name}}', {{s}}, {{maxstar}});"{% endif %}
+        >{% if s <scnt %}&#x2605{% else %}&#x2606{% endif %}</span>{% endfor %}
+        <input type="hidden" class="form-control {{c.class_attr}}" id="{{form.id}}-{{c.name}}" name="{{c.name}}" placeholder="{{c.placeholder}}" value="{{c.val if c.val }}"
+        {% if c.readonly or form.readonly %}readonly{% endif %}>
+    {% else %}
+        <div class="form-group form-input">
+            {% if c.type!="hidden" %}
+            <label for="{{form.id}}-{{c.name}}" class="form-input-label {{c.class_attr}}">{{c.label}}</label>
+            {% endif %}
+            <{% if c.type=="textarea" %}textarea rows="5" {% else %}input type="{{c.type}}" {% endif %}
+            class="form-control {{c.class_attr}}" id="{{form.id}}-{{c.name}}" name="{{c.name}}" placeholder="{{c.placeholder}}" value="{{c.val if c.val }}"
+            {% if c.onchange %} onchange="{{c.onchange}}" {% endif %}
+            {% if c.readonly or form.readonly %}readonly{% endif %}>{% if c.type=="textarea" %}{{c.val if c.val }}</textarea>{% endif %}
+    {% endif %}
+    </div>
+{% endfor %}
+{% for b in form.btns %}
+    {% if form.readonly==b.readonly or b.always %}
+    <button id="{{form.id}}-b-{{b.name}}" type="{{b.type}}" class="btn btn-primary" 
+    {% if b.act %} onclick="{{b.act}}" {% endif %}>{{b.label}}</button>
+    {% endif %}
+{% endfor %}
+</form>
+<script>
+function removeA(arr) {
+    var what, a = arguments, L = a.length, ax;
+    while (L > 1 && arr.length) {
+        what = a[--L];
+        while ((ax= arr.indexOf(what)) !== -1) {
+            arr.splice(ax, 1);
+        }
+    }
+    return arr;
+};
+{% set formid=form.id | replace("-", "_") %}
+function {{formid}}_star(obj_id, val, max) {
+    document.getElementById(obj_id).value = val+1;
+    var value=document.getElementById(obj_id).value;
+    for (i=0;i<5;i++){
+        var nid=obj_id+"-"+i;
+        console.log($("#"+nid).text());
+        if (i<value) {
+            var nval="\u2605";
+        } else {
+            var nval="\u2606";
+        }
+        $("#"+nid).text(nval);
+    }
+};
+function {{formid}}_mopt(cb, obj_id, lbl_id) {
+    var obj=$("#"+obj_id);
+    var val=document.getElementById(obj_id).value;
+    var vlst=val.split(";");
+    if (cb.checked) {
+        vlst.push(cb.value);
+        document.getElementById(lbl_id).classList.remove("form-opt-disable");
+        document.getElementById(lbl_id).classList.add("form-opt");
+    } else {
+        removeA(vlst, cb.value);
+        document.getElementById(lbl_id).classList.remove("form-opt");
+        document.getElementById(lbl_id).classList.add("form-opt-disable");
+    }
+    val=vlst.sort().join(';'); 
+    if (val.substring(0, 1)==";") {
+        val=val.substring(1, val.length);
+    }
+    document.getElementById(obj_id).value=val;
+}
+</script>
