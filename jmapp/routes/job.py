@@ -34,10 +34,16 @@ def job_get():
 def job_view_get():
     from flask import render_template, request, session
     owner = session.get("usr_cde", None)
-    paralst = ("msg", "jid", "edit")
+    paralst = ("msg", "jid", "edit", "job_cde")
     para = {p: request.args.get(p, None) for p in paralst}
-    filt = {"jid": para.get("jid", None)} if para.get(
-        "jid", None) != None else {}
+    if para.get("jid", None)==None and para.get("job_cde", None)!=None:
+        filt = {"job_cde": para.get("job_cde", None)}
+        print(filt)
+        form = job_m.form(filt=filt)
+        print(form)
+    else:
+        filt = {"jid": para.get("jid", None)} if para.get(
+            "jid", None) != None else {}
     form = job_m.form(filt=filt)
     readonly = True if para.get("edit", "0") != "1" else False
     form.readonly = readonly
